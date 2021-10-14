@@ -34,6 +34,7 @@ class ClipBCatcher():
             current_mime_data = clipboard.mimeData()
             self.save_data(current_mime_data)
             self.first_run = False
+            time.sleep(0.01)
             
     def save_data(self, mimdata):
         self.data_dir_exists()

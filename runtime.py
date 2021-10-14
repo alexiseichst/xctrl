@@ -57,9 +57,10 @@ class Runtime():
                 reader(f)
     
     def read_image(self, file):
-        print(file)
+        self.main_window.add_image_widget(QtWidgets.QImage(file))
 
     def read_text(self, file):
-        print(file)
+        with open(file) as f:
+            self.main_window.add_text_widget(f.read())
 
 

@@ -14,7 +14,7 @@ class Save():
         rt_file_path_name  = file_path_name
         id = 1
         while os.path.isfile(rt_file_path_name):
-            rt_file_path_name = file_path_name + "_" + id
+            rt_file_path_name = file_path_name + "_" + str(id)
             id = id + 1
         return file_path_name
 
