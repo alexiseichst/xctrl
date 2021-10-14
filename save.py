@@ -35,12 +35,18 @@ class JSonSave(Save):
         super().__init__(save_dir)
     
     def save_image(self, image):
-        image.save(self.get_save_file_name(".png"), "PNG")
+        file_name = self.get_save_file_name(".png")
+        image.save(file_name, "PNG")
+        return file_name
     
     def save_text(self, text):
-        with open(self.get_save_file_name(".txt"), "w") as file:
+        file_name = self.get_save_file_name(".png")
+        with open(file_name, "w") as file:
             file.write(text)
+        return file_name
         
     def save_html(self, html):
-        with open(self.get_save_file_name(".html"), "w") as file:
+        file_name = self.get_save_file_name(".html")
+        with open(file_name, "w") as file:
             file.write(html)
+        return file_name

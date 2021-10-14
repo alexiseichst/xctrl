@@ -1,5 +1,5 @@
 from mainwindow import MainWindow
-from PySide6 import QtWidgets, QtCore
+from PySide6 import QtWidgets, QtCore, QtGui
 from clipbcatcher import ClipBCatcher
 import os
 import pathlib
@@ -36,12 +36,12 @@ class Runtime():
 
         self.read_history()
 
-    def upadte_text(self, text):
-        self.main_window.add_text_widget(text)
+    def upadte_text(self, text, file):
+        self.main_window.add_text_widget(text, file)
         self.main_window.show()
     
-    def upadte_image(self, image):
-        self.main_window.add_image_widget(image)
+    def upadte_image(self, image, file):
+        self.main_window.add_image_widget(image, file)
         self.main_window.show()
 
     @property
@@ -53,14 +53,13 @@ class Runtime():
         for f in file_list:
             s = pathlib.Path(f).suffix
             reader = self.ext_map.get(s)
-            if reader :
-                reader(f)
-    
+            if reader: reader(f)
+
     def read_image(self, file):
-        self.main_window.add_image_widget(QtWidgets.QImage(file))
+        self.main_window.add_image_widget(QtGui.QImage(file), file)
 
     def read_text(self, file):
         with open(file) as f:
-            self.main_window.add_text_widget(f.read())
+            self.main_window.add_text_widget(f.read(), file)
 
 

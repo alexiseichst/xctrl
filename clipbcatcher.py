@@ -28,9 +28,10 @@ class ClipBCatcher():
         self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
         self.worker = self.executor.submit(self.worker)
 
-    def worker(self):
-        clipboard = self.app.clipboard()
+    def worker(self): 
         while self.loop:
+            time.sleep(0.01)
+            clipboard = self.app.clipboard()
             current_mime_data = clipboard.mimeData()
             self.save_data(current_mime_data)
             self.first_run = False
@@ -51,14 +52,14 @@ class ClipBCatcher():
 
     def save_image(self, image):
         if image != self.last_image and not self.first_run:      
-            [f(image) for f in self.image_call_back_list]
-            self.save.save_image(image)
+            file = self.save.save_image(image)
+            [f(image, file) for f in self.image_call_back_list]
         self.last_image = image
             
     def save_text(self, text):
-        if text != self.last_text and text != "" and not self.first_run:
-            [f(text) for f in self.text_call_back_list]
-            self.save.save_text(text)
+        if text != self.last_text and text != "" and not self.first_run:          
+            file = self.save.save_text(text)
+            [f(text, file) for f in self.text_call_back_list]
         self.last_text = text
         
     def save_html(self, html):
