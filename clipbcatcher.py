@@ -12,6 +12,8 @@ class ClipBCatcher():
         self.last_text = ""
         self.last_html = ""
         self.last_image = ""
+        self.first_run = True
+        self.loop = True
         self.image_call_back_list = []
         self.text_call_back_list = []
         self.save = JSonSave(self.save_dir)
@@ -27,13 +29,11 @@ class ClipBCatcher():
         self.worker = self.executor.submit(self.worker)
 
     def worker(self):
-        self.loop = True
+        clipboard = self.app.clipboard()
         while self.loop:
-            time.sleep(0.01)
-            clipboard = self.app.clipboard()
             current_mime_data = clipboard.mimeData()
             self.save_data(current_mime_data)
-            time.sleep(0.01)
+            self.first_run = False
             
     def save_data(self, mimdata):
         self.data_dir_exists()
@@ -49,18 +49,18 @@ class ClipBCatcher():
             os.makedirs(self.save_dir)
 
     def save_image(self, image):
-        if image != self.last_image:
-            self.last_image = image
+        if image != self.last_image and not self.first_run:      
             [f(image) for f in self.image_call_back_list]
             self.save.save_image(image)
+        self.last_image = image
             
     def save_text(self, text):
-        if text != self.last_text and text != "":
-            self.last_text = text
+        if text != self.last_text and text != "" and not self.first_run:
             [f(text) for f in self.text_call_back_list]
             self.save.save_text(text)
+        self.last_text = text
         
     def save_html(self, html):
-        if html != self.last_html:
-            self.last_html = html
+        if html != self.last_html and not self.first_run:           
             self.save.save_html(html)
+        self.last_html = html
