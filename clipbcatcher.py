@@ -1,12 +1,17 @@
-from PySide6 import QtWidgets, QtCore, QtGui
+from PySide6.QtCore import Signal, QObject
+from PySide6.QtGui import QImage
 import concurrent.futures
 import os
 import time
 import json
 from save import JSonSave
 
-class ClipBCatcher():
+class ClipBCatcher(QObject):
+    update_text = Signal(str, str)
+    update_image = Signal(QImage, str)
+
     def __init__(self, app, save_dir):
+        QObject.__init__(self)
         self.app = app
         self.save_dir = save_dir
         self.last_text = ""
@@ -19,10 +24,10 @@ class ClipBCatcher():
         self.save = JSonSave(self.save_dir)
 
     def add_text_call_back(self, function):
-        self.text_call_back_list.append(function)
+        self.update_text.connect(function)
     
     def add_image_call_back(self, function):
-        self.image_call_back_list.append(function)
+        self.update_image.connect(function)
 
     def run(self):
         self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
@@ -40,7 +45,7 @@ class ClipBCatcher():
     def save_data(self, mimdata):
         self.data_dir_exists()
         if mimdata.hasImage() :
-            self.save_image(QtGui.QImage(mimdata.imageData()))
+            self.save_image(QImage(mimdata.imageData()))
         if mimdata.hasHtml():
             self.save_html(mimdata.html())
         if mimdata.hasText():
@@ -52,14 +57,12 @@ class ClipBCatcher():
 
     def save_image(self, image):
         if image != self.last_image and not self.first_run:      
-            file = self.save.save_image(image)
-            [f(image, file) for f in self.image_call_back_list]
+            self.update_image.emit(image, self.save_image(image))
         self.last_image = image
             
     def save_text(self, text):
         if text != self.last_text and text != "" and not self.first_run:          
-            file = self.save.save_text(text)
-            [f(text, file) for f in self.text_call_back_list]
+            self.update_text.emit(text, self.save.save_text(text))
         self.last_text = text
         
     def save_html(self, html):

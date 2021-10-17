@@ -1,6 +1,4 @@
 from abc import abstractmethod
-from PySide6 import QtWidgets, QtCore, QtGui
-import json
 import os
 from datetime import datetime
 
@@ -16,7 +14,7 @@ class Save():
         while os.path.isfile(rt_file_path_name):
             rt_file_path_name = file_path_name + "_" + str(id)
             id = id + 1
-        return file_path_name
+        return rt_file_path_name
 
     @abstractmethod
     def save_image(self, image):
@@ -40,7 +38,7 @@ class JSonSave(Save):
         return file_name
     
     def save_text(self, text):
-        file_name = self.get_save_file_name(".png")
+        file_name = self.get_save_file_name(".txt")
         with open(file_name, "w") as file:
             file.write(text)
         return file_name
