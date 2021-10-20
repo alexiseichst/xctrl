@@ -1,17 +1,18 @@
-from PySide6.QtCore import Signal, QObject
-from PySide6.QtGui import QImage
+import PySide6.QtCore as QC
+import PySide6.QtWidgets as QW 
+import PySide6.QtGui as QG
 import concurrent.futures
 import os
 import time
 import json
 from save import JSonSave
 
-class ClipBCatcher(QObject):
-    update_text = Signal(str, str)
-    update_image = Signal(QImage, str)
+class ClipBCatcher(QC.QObject):
+    update_text = QC.Signal(str, str)
+    update_image = QC.Signal(QG.QImage, str)
 
     def __init__(self, app, save_dir):
-        QObject.__init__(self)
+        QC.QObject.__init__(self)
         self.app = app
         self.save_dir = save_dir
         self.last_text = ""
@@ -28,7 +29,7 @@ class ClipBCatcher(QObject):
     
     def add_image_call_back(self, function):
         self.update_image.connect(function)
-
+    
     def run(self):
         self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
         self.worker = self.executor.submit(self.worker)
@@ -45,7 +46,7 @@ class ClipBCatcher(QObject):
     def save_data(self, mimdata):
         self.data_dir_exists()
         if mimdata.hasImage() :
-            self.save_image(QImage(mimdata.imageData()))
+            self.save_image(QG.QImage(mimdata.imageData()))
         if mimdata.hasHtml():
             self.save_html(mimdata.html())
         if mimdata.hasText():

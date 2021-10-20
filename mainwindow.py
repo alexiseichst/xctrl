@@ -1,19 +1,21 @@
-from PySide6.QtCore import Qt, QSize, QUrl
-from PySide6.QtWidgets import QLineEdit, QVBoxLayout, QDialog, QListWidgetItem, QListWidget
-from PySide6.QtGui import QIcon, QPixmap, QDesktopServices
+import PySide6.QtCore as QC
+import PySide6.QtWidgets as QW 
+import PySide6.QtGui as QG
 
-class MainWindow(QDialog):
+class MainWindow(QW.QDialog):
     def __init__(self):
         super().__init__()
         self.resize(400, 300)
         self.__item_size = 50
         self.__data = {}
         self.__filter = ''
-        self.__ctrl_key_action = {Qt.Key_E: self.open_service}
+        self.__ctrl_key_action = {QC.Qt.Key_E: self.open_service}
 
     def init_ui(self):
         self.__init_widget()
         self.__init_layout()
+        self.show()
+        self.__list_widget.setFocus()
 
     @property
     def filter(self):
@@ -24,18 +26,26 @@ class MainWindow(QDialog):
         self.apply_filter()
             
     def __init_widget(self):
-        self.__search_bar = QLineEdit(self)
+        self.__search_bar = QW.QLineEdit(self)
         self.__search_bar.textChanged.connect(self.set_filter)
-        self.__list_widget = QListWidget(self)
-
+        self.__search_bar.setFocus(QC.Qt.OtherFocusReason)
+        self.__list_widget = QW.QListWidget(self)
+        self.__list_widget.setFocus(QC.Qt.OtherFocusReason)
+        
     def __init_layout(self):
-        self.__layout = QVBoxLayout(self)
+        self.__layout = QW.QVBoxLayout(self)
         self.__layout.addWidget(self.__search_bar)
         self.__layout.addWidget(self.__list_widget)
+        self.__sys_icon = QW.QSystemTrayIcon(self)
+
+    def __init_sys_icon(self):
+        self.sys_icon = QW.QSystemTrayIcon(self)
+        self.__sys_menu = QW.QMenu(self)
 
     def get_new_item(self, file):
-        new_item = QListWidgetItem()
-        new_item.setSizeHint(QSize(0, self.__item_size))
+        new_item = QW.QListWidgetItem()
+        new_item.setSizeHint(QC.QSize(0, self.__item_size))
+        self.__list_widget.insertItem(0, new_item)
         self.__data[file] = new_item
         return new_item
 
@@ -49,15 +59,13 @@ class MainWindow(QDialog):
     def add_text_widget(self, text, file):
         new_item = self.get_new_item(file)
         new_item.setText(text)
-        self.__list_widget.insertItem(0, new_item)
         self.apply_filter()
 
     def add_image_widget(self, image, file):
         new_item = self.get_new_item(file)
-        pixmap = QPixmap.fromImage(image)
-        icon = QIcon(pixmap)
+        pixmap = QG.QSystemTrayIcon.fromImage(image)
+        icon = QG.QIcon(pixmap)
         new_item.setIcon(icon)
-        self.__list_widget.insertItem(0, new_item)
         self.apply_filter()
 
     @property
@@ -75,13 +83,12 @@ class MainWindow(QDialog):
     def open_service(self, event):
         current_file = self.current_file
         if current_file :
-            QDesktopServices.openUrl(QUrl.fromLocalFile(self.current_file))
+            QW.QDesktopServices.openUrl(QC.QUrl.fromLocalFile(self.current_file))
         
     def keyPressEvent(self, event):
         key = event.key()
-        if event.modifiers() == Qt.ControlModifier:
+        if event.modifiers() == QC.Qt.ControlModifier:
             action = self.__ctrl_key_action.get(key)
-            if action :
-                action(event)
-            else:
-                QDialog.keyPressEvent(self, event)
+            if action : action(event)
+        else:
+            QW.QDialog.keyPressEvent(self, event)
